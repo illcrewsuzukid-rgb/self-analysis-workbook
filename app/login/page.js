@@ -1,11 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errParam = params.get("error");
+    if (errParam) setError(`認証エラー: ${decodeURIComponent(errParam)}`);
+  }, []);
 
   const sendLink = async (e) => {
     e.preventDefault();

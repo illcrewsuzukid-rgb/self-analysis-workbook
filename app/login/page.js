@@ -40,18 +40,24 @@ export default function LoginPage() {
     setStatus("verifying");
     setError("");
     const supabase = getSupabaseBrowser();
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: code.trim(),
-      type: "email",
-    });
-    if (error) {
-      setError(error.message);
-      setStatus("idle");
-    } else {
-      router.push("/");
-      router.refresh();
+    const trimmed = code.trim();
+    // Try common OTP types in order. signInWithOtp issues different types
+    // depending on whether user exists (magiclink) or is new (signup/email).
+    const types = ["email", "magiclink", "signup"];
+    let lastError = null;
+    for (const type of types) {
+      const { error } = await supabase.auth.verifyOtp({ email, token: trimmed, type });
+      if (!error) {
+        router.push("/");
+        router.refresh();
+        return;
+      }
+      lastError = error;
+      // Bail out early on errors that won't be fixed by trying another type
+      if (!/expired|invalid|not found/i.test(error.message)) break;
     }
+    setError(lastError?.message || "ログインに失敗しました");
+    setStatus("idle");
   };
 
   const card = { background: "#fff", borderRadius: 20, padding: 40, width: "100%", maxWidth: 420, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" };

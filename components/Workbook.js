@@ -438,7 +438,7 @@ function MotivationPage({ data, setData }) {
                   </div>
                   <div style={{ flex: 1, minWidth: 160 }}>
                     <label style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 4 }}>出来事</label>
-                    <input type="text" value={p.event} placeholder="何があった？" onChange={e => updatePoint(i, "event", e.target.value)}
+                    <input type="text" value={p.event || ""} placeholder="何があった？" onChange={e => updatePoint(i, "event", e.target.value)}
                       style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1.5px solid #e2e8f0", fontSize: 14, outline: "none", boxSizing: "border-box" }} />
                   </div>
                   <button onClick={() => removePoint(i)} style={{ width: 32, height: 32, borderRadius: 8, border: "none", background: "#fef2f2", color: "#ef4444", cursor: "pointer", fontSize: 16, flexShrink: 0 }}>×</button>
@@ -512,7 +512,7 @@ function WhyChainPage({ data, setData }) {
           <button onClick={() => removeChain(ci)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: 6, border: "none", background: "#fef2f2", color: "#ef4444", cursor: "pointer", fontSize: 14 }}>×</button>
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 6, display: "block" }}>🎬 エピソード</label>
-            <TextArea value={chain.event} onChange={v => updateChain(ci, "event", v)} placeholder="深掘りしたいエピソードを具体的に書こう" rows={2} />
+            <TextArea value={chain.event || ""} onChange={v => updateChain(ci, "event", v)} placeholder="深掘りしたいエピソードを具体的に書こう" rows={2} />
           </div>
           <div style={{ paddingLeft: 20, borderLeft: "3px solid #e0e7ff" }}>
             {WHY_GUIDE_STEPS.map((step, wi) => (
@@ -542,7 +542,7 @@ function WhyChainPage({ data, setData }) {
                 <ExampleBubble key={t} text={t.replace("{X}", "＿＿")} onClick={() => updateChain(ci, "insight", t.replace("{X}", ""))} />
               ))}
             </div>
-            <TextArea value={chain.insight} onChange={v => updateChain(ci, "insight", v)}
+            <TextArea value={chain.insight || ""} onChange={v => updateChain(ci, "insight", v)}
               placeholder='例: 自分は「仲間と一緒に成長すること」にモチベーションが湧くタイプ' rows={2} />
           </div>
           <div style={{ marginTop: 16, background: "#f8f9ff", borderRadius: 12, padding: 16 }}>
@@ -754,7 +754,7 @@ function WillCanMustPage({ data, setData }) {
                 }} />
               ))}
             </div>
-            <TextArea value={wcm[item.key]} onChange={v => update(item.key, v)} placeholder="ガイド質問への回答や、選択肢で気になったものを自分の言葉で書いてみよう..." rows={4} />
+            <TextArea value={wcm[item.key] || ""} onChange={v => update(item.key, v)} placeholder="ガイド質問への回答や、選択肢で気になったものを自分の言葉で書いてみよう..." rows={4} />
           </Card>
         ))}
         <Card style={{ borderLeft: "4px solid #0f172a" }}>
@@ -814,7 +814,7 @@ function VisionPage({ data, setData }) {
                 <ExampleBubble key={ex} text={ex} onClick={() => { const cur = vision[s.key] || ""; update(s.key, cur ? cur + "、" + ex : ex); }} />
               ))}
             </div>
-            <TextArea value={vision[s.key]} onChange={v => update(s.key, v)} placeholder="テンプレートや例を参考に書いてみよう..." rows={3} />
+            <TextArea value={vision[s.key] || ""} onChange={v => update(s.key, v)} placeholder="テンプレートや例を参考に書いてみよう..." rows={3} />
           </Card>
         ))}
         <Card>
@@ -885,7 +885,7 @@ function AxisPage({ data, setData }) {
           <Card key={i} style={{ padding: 20, position: "relative" }}>
             <button onClick={() => removeAxis(i)} style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 6, border: "none", background: "#fef2f2", color: "#ef4444", cursor: "pointer", fontSize: 13 }}>×</button>
             <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <input type="text" value={a.name} placeholder="軸の名前" onChange={e => updateAxis(i, "name", e.target.value)}
+              <input type="text" value={a.name || ""} placeholder="軸の名前" onChange={e => updateAxis(i, "name", e.target.value)}
                 style={{ flex: 1, minWidth: 150, padding: "8px 12px", borderRadius: 8, border: "1.5px solid #e2e8f0", fontSize: 14, fontWeight: 600, outline: "none" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>優先度:</span>
@@ -902,7 +902,7 @@ function AxisPage({ data, setData }) {
                 🤔 {a.guideQ}
               </div>
             )}
-            <TextArea value={a.reason} onChange={v => updateAxis(i, "reason", v)} placeholder="なぜこの軸が大切？ どんな経験からそう思った？" rows={2} />
+            <TextArea value={a.reason || ""} onChange={v => updateAxis(i, "reason", v)} placeholder="なぜこの軸が大切？ どんな経験からそう思った？" rows={2} />
           </Card>
         ))}
       </div>
@@ -1032,13 +1032,17 @@ function SummaryPage({ data }) {
 export default function Workbook({ initialData, userEmail }) {
   const [active, setActive] = useState("home");
   const [mobileNav, setMobileNav] = useState(false);
-  const [data, setData] = useState(initialData ?? DEFAULT_DATA);
+  // Merge with DEFAULT_DATA so fields added in later versions exist on older saves.
+  const mergedInitial = { ...DEFAULT_DATA, ...(initialData || {}) };
+  const [data, setData] = useState(mergedInitial);
   const [saveStatus, setSaveStatus] = useState("idle");
 
   const supabase = getSupabaseBrowser();
   const saveTimer = useRef(null);
+  const statusTimer = useRef(null);
   const dirtyRef = useRef(false);
-  const lastSavedRef = useRef(JSON.stringify(initialData ?? DEFAULT_DATA));
+  const lastSavedRef = useRef(JSON.stringify(mergedInitial));
+  const saveGenRef = useRef(0);
 
   // Debounced auto-save
   useEffect(() => {
@@ -1048,23 +1052,39 @@ export default function Workbook({ initialData, userEmail }) {
     setSaveStatus("dirty");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
+      const gen = ++saveGenRef.current;
       setSaveStatus("saving");
       const { error } = await supabase.from("user_data").upsert(
         { user_id: (await supabase.auth.getUser()).data.user?.id, data, updated_at: new Date().toISOString() },
         { onConflict: "user_id" }
       );
+      // Stale response — a newer save has been queued; ignore this result.
+      if (gen !== saveGenRef.current) return;
       if (error) {
         console.error("save error", error);
         setSaveStatus("error");
       } else {
         lastSavedRef.current = serialized;
-        dirtyRef.current = false;
-        setSaveStatus("saved");
-        setTimeout(() => setSaveStatus(s => (s === "saved" ? "idle" : s)), 1500);
+        // Only mark clean if nothing changed while we were saving.
+        if (JSON.stringify(data) === serialized) {
+          dirtyRef.current = false;
+          setSaveStatus("saved");
+          if (statusTimer.current) clearTimeout(statusTimer.current);
+          statusTimer.current = setTimeout(
+            () => setSaveStatus((s) => (s === "saved" ? "idle" : s)),
+            1500
+          );
+        }
       }
     }, 1000);
     return () => clearTimeout(saveTimer.current);
   }, [data, supabase]);
+
+  // Clear pending timers on unmount
+  useEffect(() => () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+  }, []);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -1076,6 +1096,9 @@ export default function Workbook({ initialData, userEmail }) {
   }, []);
 
   const logout = useCallback(async () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+    saveGenRef.current++; // Invalidate any in-flight save
     await supabase.auth.signOut();
     window.location.href = "/login";
   }, [supabase]);

@@ -1,6 +1,7 @@
 export const metadata = {
   title: "自己分析ワークブック",
   description: "就活向け自己分析ワークブック",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }) {

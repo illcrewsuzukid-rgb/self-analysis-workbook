@@ -73,7 +73,7 @@ export default function LoginPage() {
         {step === "email" ? (
           <>
             <p style={{ color: "#64748b", fontSize: 13, margin: "10px 0 28px", lineHeight: 1.7 }}>
-              メールアドレスを入力すると、6桁のログインコードが届きます。
+              メールアドレスを入力すると、ログインコードが届きます。
             </p>
             <form onSubmit={sendCode}>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={input} />
@@ -87,11 +87,11 @@ export default function LoginPage() {
           <>
             <p style={{ color: "#64748b", fontSize: 13, margin: "10px 0 20px", lineHeight: 1.7 }}>
               <strong style={{ color: "#0f172a" }}>{email}</strong> にコードを送信しました。<br />
-              メールに記載された <strong>6桁のコード</strong> を入力してください。
+              メールに記載された <strong>コード</strong> を入力してください。
             </p>
             <form onSubmit={verifyCode}>
-              <input type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]*" required value={code} onChange={(e) => setCode(e.target.value)} placeholder="123456" maxLength={6}
-                style={{ ...input, fontSize: 24, textAlign: "center", letterSpacing: 8, fontWeight: 700 }} />
+              <input type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]*" required value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} placeholder="12345678" maxLength={10}
+                style={{ ...input, fontSize: 24, textAlign: "center", letterSpacing: 6, fontWeight: 700 }} />
               <button type="submit" disabled={status === "verifying"} style={button(status === "verifying")}>
                 {status === "verifying" ? "確認中..." : "ログイン"}
               </button>
